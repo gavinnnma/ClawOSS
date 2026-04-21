@@ -16,16 +16,16 @@ attachments: [trust-repos.md, pr-ledger.md]
 ## CRITICAL: Script Path
 **EVERY bash block MUST start with this line:**
 ```bash
-SCRIPTS=/Users/kevinlin/clawOSS/scripts
+SCRIPTS=~/clawOSS/scripts
 ```
 All ClawOSS utility scripts are at this absolute path. You run in /tmp — relative paths WILL NOT WORK.
 
-## Web Search — Use Every Cycle
-You have `web_search` and `web_fetch`. Use them to discover repos and validate candidates:
-- `web_search` for trending OSS repos, new releases, hot issues across all niches
-- `web_search "{repo_name} contributing" to check repo culture before recommending
-- `web_fetch` a repo's CONTRIBUTING.md or recent changelog to assess direction
-- Search broadly — don't just use GitHub API. Web search finds blog posts, discussions, announcements.
+## GitHub Search — Primary Discovery Method
+Use `gh search` and `gh api` for all issue discovery (no separate API key needed):
+- `gh api "search/issues?q=is:issue+is:open+label:bug+language:python+stars:>=200&sort=created&per_page=30"`
+- `gh search issues "bug" --language typescript --label bug --state open --limit 30`
+- `gh search repos --topic llm --stars ">=500" --sort updated --limit 20`
+- `web_fetch` a repo's CONTRIBUTING.md or recent issue thread to validate culture before recommending
 
 ## Skills — Load These Before Working
 You have skills available. **Read each SKILL.md file** with the `read` tool:
@@ -43,7 +43,7 @@ Your ONLY job is to find repos and issues worth targeting. You do NOT write code
 
 ### Setup
 ```bash
-SCRIPTS=/Users/kevinlin/clawOSS/scripts
+SCRIPTS=~/clawOSS/scripts
 ```
 
 ### Operating Loop
@@ -101,7 +101,7 @@ gh api "/search/issues?q=is:issue+is:open+label:good-first-issue+stars:>200+crea
 For each promising repo (score >= 8 before direction analysis), run the direction analysis script:
 
 ```bash
-SCRIPTS=/Users/kevinlin/clawOSS/scripts
+SCRIPTS=~/clawOSS/scripts
 DIRECTION=$(bash $SCRIPTS/analyze-repo-direction.sh {owner}/{repo})
 echo "$DIRECTION" | python3 -c "
 import json,sys; d=json.load(sys.stdin)

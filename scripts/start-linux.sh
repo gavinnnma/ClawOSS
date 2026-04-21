@@ -126,6 +126,20 @@ with open(deployed_path, 'w') as f:
 "
 echo "[OK] Config deployed"
 
+# Expose scripts as ~/clawOSS/scripts so prompt templates can reference them portably
+mkdir -p "$HOME/clawOSS"
+if [ ! -L "$HOME/clawOSS/scripts" ] || [ "$(readlink "$HOME/clawOSS/scripts" 2>/dev/null)" != "$PROJECT_DIR/scripts" ]; then
+    rm -f "$HOME/clawOSS/scripts" 2>/dev/null || true
+    ln -sf "$PROJECT_DIR/scripts" "$HOME/clawOSS/scripts"
+    echo "[OK] scripts linked: ~/clawOSS/scripts -> $PROJECT_DIR/scripts"
+fi
+# Also expose workspace for any prompts that reference ~/clawOSS/workspace
+if [ ! -L "$HOME/clawOSS/workspace" ] || [ "$(readlink "$HOME/clawOSS/workspace" 2>/dev/null)" != "$WORKSPACE_DIR" ]; then
+    rm -f "$HOME/clawOSS/workspace" 2>/dev/null || true
+    ln -sf "$WORKSPACE_DIR" "$HOME/clawOSS/workspace"
+    echo "[OK] workspace linked: ~/clawOSS/workspace -> $WORKSPACE_DIR"
+fi
+
 mkdir -p "$HOME/.openclaw/logs" \
          "$WORKSPACE_DIR/memory/repos" \
          "$WORKSPACE_DIR/memory/issues" \
