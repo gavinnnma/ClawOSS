@@ -21,11 +21,20 @@ git config --global user.name "$GITHUB_USERNAME"
 git config --global user.email "$GITHUB_EMAIL"
 echo "[OK] Git identity: $GITHUB_USERNAME <$GITHUB_EMAIL>"
 
-echo "$GITHUB_TOKEN" | gh auth login --with-token 2>/dev/null || true
+# Write gh auth config directly — avoids all interactive login prompts.
+# This persists for the container lifetime and works in all subprocesses
+# regardless of whether GH_TOKEN env var is inherited.
+mkdir -p "$HOME/.config/gh"
+cat > "$HOME/.config/gh/hosts.yml" << GHEOF
+github.com:
+    oauth_token: ${GITHUB_TOKEN}
+    user: ${GITHUB_USERNAME}
+    git_protocol: https
+GHEOF
 if gh auth status &>/dev/null; then
-    echo "[OK] GitHub CLI authenticated"
+    echo "[OK] GitHub CLI authenticated as $(gh api user --jq .login 2>/dev/null || echo $GITHUB_USERNAME)"
 else
-    echo "[WARN] GitHub CLI auth failed — gh commands may fail"
+    echo "[WARN] GitHub CLI auth failed — check GITHUB_TOKEN value"
 fi
 
 mkdir -p "$HOME/.openclaw"
